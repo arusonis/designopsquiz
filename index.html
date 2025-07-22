@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What's Your DesignOps Archetype?</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .quiz-info {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .question {
+            margin-bottom: 40px;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .question:nth-child(1) { animation-delay: 0.1s; }
+        .question:nth-child(2) { animation-delay: 0.2s; }
+        .question:nth-child(3) { animation-delay: 0.3s; }
+        .question:nth-child(4) { animation-delay: 0.4s; }
+        .question:nth-child(5) { animation-delay: 0.5s; }
+        .question:nth-child(6) { animation-delay: 0.6s; }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .question h3 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #374151;
+            font-weight: 600;
+        }
+
+        .options {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option:hover {
+            border-color: #4f46e5;
+            background: #f0f4ff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.15);
+        }
+
+        .option input[type="radio"] {
+            display: none;
+        }
+
+        .option.selected {
+            border-color: #4f46e5;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3);
+        }
+
+        .option.selected::before {
+            content: '✓';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .submit-container {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(16, 185, 129, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results {
+            display: none;
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 40px;
+            margin-top: 30px;
+            border-left: 6px solid #10b981;
+        }
+
+        .archetype-result {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .archetype-badge {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 50px;
+            color: white;
+            font-weight: 700;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+        }
+
+        .optimizer { background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); }
+        .connector { background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%); }
+        .stabilizer { background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); }
+        .strategist { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); }
+
+        .archetype-description {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #374151;
+            margin-bottom: 30px;
+        }
+
+        .all-archetypes {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .all-archetypes h4 {
+            color: #374151;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        .archetype-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .archetype-card {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid;
+        }
+
+        .archetype-card.optimizer { border-left-color: #dc2626; }
+        .archetype-card.connector { border-left-color: #ea580c; }
+        .archetype-card.stabilizer { border-left-color: #16a34a; }
+        .archetype-card.strategist { border-left-color: #2563eb; }
+
+        .archetype-card h5 {
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .archetype-card .keywords {
+            color: #6b7280;
+            font-size: 0.9rem;
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+
+        .archetype-card p {
+            color: #4b5563;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 30px 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .content {
+                padding: 30px 20px;
+            }
+            
+            .archetype-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 What's Your DesignOps Archetype?</h1>
+            <p>Pick the answer that feels most like <em>you</em>. There are no wrong answers — just insights.</p>
+            <div class="quiz-info">
+                <strong>6 questions · 2 minutes</strong>
+            </div>
+        </div>
+
+        <div class="content">
+            <form id="quizForm">
+                <div class="question">
+                    <h3>1. When facing a new process challenge, you first:</h3>
+                    <div class="options">
+                        <label class="option">
+                            <input type="radio" name="q1" value="a">
+                            Prototype a rough solution and test it
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="q1" value="b">
+                            Research best practices and proven approaches
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="q1" value="c">
+                            Talk to stakeholders and gather input
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="q1" value="d">
+                            Map the current workflow to understand it fully
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <h3>2. You're most energized when:</h3>
+                    <div class="options">
+                        <label class="option">
+                            <input type="radio" name="q2" value="a">
+                            Planning long-term strategy and future vision
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="q2" value="b">
+                            Collaborating with cross-functional partners
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="q2" value="c">
+                            Coming up with creative, unconventional solutions
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="q2" value="d">
+                            Streamlining messy systems
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <h3>3. When a new tool is introduced, you tend to:</h3>
+                    <div class="options">
+                        <label class="option">
+                            <input type="radio" name="q3" value="a">
+                            Immediately test it and figure out how to apply it
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="q3" value="b">
+                            Read the documentation in detail
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="q3" value="c">
+                            Facilitate a team session to explore it together
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="q3" value="d">
+                            Consider where it fits into the larger tech stack
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <h3>4. Your ideal team meeting has:</h3>
+                    <div class="options">
+                        <label class="option">
+                            <input type="radio" name="q4" value="a">
+                            Hands-on activities that drive shared ownership
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="q4" value="b">
+                            A calm, focused agenda and time for quieter voices
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="q4" value="c">
+                            Clear structure and documented next steps
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="q4" value="d">
+                            Lively discussion and idea-sharing
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <h3>5. When a tight deadline hits, you:</h3>
+                    <div class="options">
+                        <label class="option">
+                            <input type="radio" name="q5" value="a">
+                            Triage the priorities and make a quick call
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="q5" value="b">
+                            Keep communication open and rally the team
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="q5" value="c">
+                            Stick to the plan and ensure nothing slips
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="q5" value="d">
+                            Reassess the risks and adjust the roadmap
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <h3>6. Your favorite kind of project involves:</h3>
+                    <div class="options">
+                        <label class="option">
+                            <input type="radio" name="q6" value="a">
+                            Leading strategic planning and visioning sessions
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="q6" value="b">
+                            Prototyping and iterating toward something new
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="q6" value="c">
+                            Fixing a broken process or scaling a workflow
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="q6" value="d">
+                            Running alignment sessions across teams
+                        </label>
+                    </div>
+                </div>
+
+                <div class="submit-container">
+                    <button type="button" class="submit-btn" id="submitBtn">
+                        🔍 Discover My Archetype
+                    </button>
+                </div>
+            </form>
+
+            <div id="results" class="results">
+                <div class="archetype-result">
+                    <div id="archetypeBadge" class="archetype-badge"></div>
+                    <div id="archetypeDescription" class="archetype-description"></div>
+                </div>
+
+                <div class="all-archetypes">
+                    <h4>🧭 All DesignOps Archetypes Reference:</h4>
+                    <div class="archetype-grid">
+                        <div class="archetype-card optimizer">
+                            <h5>🎯 Optimizer (D - Dominance)</h5>
+                            <div class="keywords">Decisive, systems-driven, action-oriented</div>
+                            <p>You thrive on making quick decisions and streamlining processes. You see inefficiencies and want to fix them immediately, often taking charge to drive results.</p>
+                        </div>
+                        <div class="archetype-card connector">
+                            <h5>🤝 Connector (I - Influence)</h5>
+                            <div class="keywords">Social, collaborative, team-builder</div>
+                            <p>You energize teams and facilitate collaboration. You naturally bring people together, build consensus, and create environments where everyone feels heard.</p>
+                        </div>
+                        <div class="archetype-card stabilizer">
+                            <h5>⚖️ Stabilizer (S - Steadiness)</h5>
+                            <div class="keywords">Reliable, supportive, calm under pressure</div>
+                            <p>You provide consistency and support when things get chaotic. Teams rely on you to maintain quality, follow through on commitments, and keep everyone grounded.</p>
+                        </div>
+                        <div class="archetype-card strategist">
+                            <h5>🧠 Strategist (C - Conscientiousness)</h5>
+                            <div class="keywords">Analytical, detail-focused, long-term planner</div>
+                            <p>You think several steps ahead and love diving deep into the details. You research thoroughly, plan comprehensively, and ensure decisions are data-driven.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center;">
+                    <button class="restart-btn" onclick="restartQuiz()">Take Quiz Again</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Grading key based on your sheet
+        const gradingKey = {
+            q1: { a: 'Innovator', b: 'Optimizer', c: 'Connector', d: 'Strategist' },
+            q2: { a: 'Strategist', b: 'Connector', c: 'Innovator', d: 'Optimizer' },
+            q3: { a: 'Innovator', b: 'Strategist', c: 'Connector', d: 'Strategist' },
+            q4: { a: 'Innovator', b: 'Stabilizer', c: 'Optimizer', d: 'Connector' },
+            q5: { a: 'Optimizer', b: 'Connector', c: 'Stabilizer', d: 'Strategist' },
+            q6: { a: 'Strategist', b: 'Innovator', c: 'Optimizer', d: 'Connector' }
+        };
+
+        const archetypeInfo = {
+            'Optimizer': {
+                disc: 'D - Dominance',
+                keywords: 'Decisive, systems-driven, action-oriented',
+                description: 'You are the <strong>Optimizer</strong>! You thrive on making quick decisions and streamlining processes. You naturally see inefficiencies and want to fix them immediately, often taking charge to drive results. You bring decisive action and systematic thinking to your team.',
+                className: 'optimizer'
+            },
+            'Connector': {
+                disc: 'I - Influence',
+                keywords: 'Social, collaborative, team-builder', 
+                description: 'You are the <strong>Connector</strong>! You energize teams and facilitate collaboration. You naturally bring people together, build consensus, and create environments where everyone feels heard. Your superpower is turning individual contributors into a unified team.',
+                className: 'connector'
+            },
+            'Stabilizer': {
+                disc: 'S - Steadiness',
+                keywords: 'Reliable, supportive, calm under pressure',
+                description: 'You are the <strong>Stabilizer</strong>! You provide consistency and support when things get chaotic. Teams rely on you to maintain quality, follow through on commitments, and keep everyone grounded. You bring calm, reliable leadership to any situation.',
+                className: 'stabilizer'
+            },
+            'Strategist': {
+                disc: 'C - Conscientiousness', 
+                keywords: 'Analytical, detail-focused, long-term planner',
+                description: 'You are the <strong>Strategist</strong>! You think several steps ahead and love diving deep into the details. You research thoroughly, plan comprehensively, and ensure decisions are data-driven. You bring analytical rigor and long-term vision to your team.',
+                className: 'strategist'
+            }
+        };
+
+        // Handle option selection with smooth animations
+        document.querySelectorAll('.option').forEach(option => {
+            option.addEventListener('click', function() {
+                const questionName = this.querySelector('input').name;
+                document.querySelectorAll(`input[name="${questionName}"]`).forEach(input => {
+                    input.parentElement.classList.remove('selected');
+                });
+                this.classList.add('selected');
+                this.querySelector('input').checked = true;
+                
+                // Check if all questions are answered
+                updateSubmitButton();
+            });
+        });
+
+        function updateSubmitButton() {
+            const totalQuestions = 6;
+            const answeredQuestions = document.querySelectorAll('input[type="radio"]:checked').length;
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (answeredQuestions === totalQuestions) {
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.6';
+            }
+        }
+
+        // Initialize submit button state
+        updateSubmitButton();
+        
+        // Debug logging
+        console.log('Quiz initialized');
+
+        // Handle form submission - using button click instead of form submit
+        document.getElementById('submitBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            try {
+                console.log('Submit button clicked!');
+                
+                // Collect answers
+                const answers = {};
+                for (let i = 1; i <= 6; i++) {
+                    const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                    if (selected) {
+                        answers[`q${i}`] = selected.value;
+                    }
+                }
+                
+                console.log('Collected answers:', answers);
+                
+                // Check if we have all answers
+                if (Object.keys(answers).length !== 6) {
+                    alert('Please answer all questions before submitting!');
+                    return;
+                }
+                
+                // Grade the quiz
+                const archetypeCounts = { 'Optimizer': 0, 'Connector': 0, 'Stabilizer': 0, 'Strategist': 0 };
+                
+                Object.keys(answers).forEach(question => {
+                    const answer = answers[question];
+                    const archetype = gradingKey[question][answer];
+                    if (archetype) {
+                        archetypeCounts[archetype] = (archetypeCounts[archetype] || 0) + 1;
+                    }
+                });
+                
+                console.log('Archetype counts:', archetypeCounts);
+                
+                // Find the dominant archetype
+                let dominantArchetype = 'Optimizer';
+                let maxCount = 0;
+                
+                Object.keys(archetypeCounts).forEach(archetype => {
+                    if (archetypeCounts[archetype] > maxCount) {
+                        maxCount = archetypeCounts[archetype];
+                        dominantArchetype = archetype;
+                    }
+                });
+                
+                // Check for ties
+                const tiedArchetypes = Object.keys(archetypeCounts).filter(key => 
+                    archetypeCounts[key] === maxCount
+                );
+                
+                console.log('Dominant archetype:', dominantArchetype);
+                
+                // Show results
+                showResults(dominantArchetype, tiedArchetypes, archetypeCounts);
+                
+            } catch (error) {
+                console.error('Error processing quiz:', error);
+                alert('There was an error processing your quiz. Please try again!');
+            }
+        });
+
+        function showResults(archetype, tiedArchetypes, counts) {
+            const resultsDiv = document.getElementById('results');
+            const badge = document.getElementById('archetypeBadge');
+            const description = document.getElementById('archetypeDescription');
+            
+            const info = archetypeInfo[archetype];
+            
+            // Set up the badge
+            badge.textContent = `${getArchetypeEmoji(archetype)} ${archetype}`;
+            badge.className = `archetype-badge ${info.className}`;
+            
+            // Set up the description
+            let descriptionHTML = info.description;
+            
+            // Add hybrid information if there are ties
+            if (tiedArchetypes.length > 1) {
+                descriptionHTML += `<br><br><em>You show strong traits from multiple archetypes: ${tiedArchetypes.join(' + ')}. This hybrid style gives you unique versatility!</em>`;
+            }
+            
+            // Add breakdown
+            descriptionHTML += `<br><br><strong>Your archetype breakdown:</strong><br>`;
+            Object.entries(counts).sort((a, b) => b[1] - a[1]).forEach(([type, count]) => {
+                descriptionHTML += `${getArchetypeEmoji(type)} ${type}: ${count}/6 responses<br>`;
+            });
+            
+            description.innerHTML = descriptionHTML;
+            
+            // Hide form and show results with animation
+            document.getElementById('quizForm').style.display = 'none';
+            resultsDiv.style.display = 'block';
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function getArchetypeEmoji(archetype) {
+            const emojis = {
+                'Optimizer': '🎯',
+                'Connector': '🤝', 
+                'Stabilizer': '⚖️',
+                'Strategist': '🧠'
+            };
+            return emojis[archetype] || '🔍';
+        }
+
+        function restartQuiz() {
+            // Reset form
+            document.getElementById('quizForm').reset();
+            document.querySelectorAll('.option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Hide results and show form
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('quizForm').style.display = 'block';
+            
+            // Reset submit button
+            updateSubmitButton();
+            
+            // Scroll to top
+            document.querySelector('.header').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
